@@ -1,0 +1,6 @@
+{
+  "name": "MIEX IT Value Dashboard",
+  "description": "ИТ-дашборд MIEX для мониторинга ценности и метрик ИТ по ролям (CEO, CIO, CTO).",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
