@@ -3,18 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
-} from 'recharts';
-import { 
-  TrendingUp, TrendingDown, Activity, Shield, Zap, Target, 
-  Users, Briefcase, Clock, AlertCircle, ChevronDown, Filter,
-  Settings, Database, Award, BarChart3, LayoutDashboard
+  Bath,
+  Droplets,
+  Lightbulb,
+  Layers,
+  Maximize,
+  CheckCircle2,
+  ChevronRight,
+  Palette,
+  Box,
+  Layout as LayoutIcon,
+  Zap,
+  Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Role, Metric, ProductLine } from './types';
-import { METRICS, PRODUCT_LINES, MOCK_CHART_DATA } from './mockData';
+import { VARIANTS } from './mockData';
+import { DesignVariant, Material, LightingFeature, TechnicalSpec } from './types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -22,428 +28,225 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const COLORS = {
-  moexGreen: '#e6f4ea',
-  moexPink: '#fce8e6',
-  moexGray: '#f1f3f4',
-  moexDark: '#202124',
-  moexText: '#3c4043',
-  moexSuccess: '#137333',
-  moexError: '#c5221f',
-};
-
-const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; key?: string }) => {
-  const isGood = metric.status === 'good';
-  const isBad = metric.status === 'bad';
-
-  return (
-    <motion.div
-      layout="position"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.3 }}
-      whileHover={{ y: -4 }}
-      onClick={onClick}
-      className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
-        isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
-        isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
-        !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
-      )}
+const MaterialCard = ({ material }: { material: Material; key?: string }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+  >
+    <div
+      className="w-full h-24 rounded-lg mb-4 flex items-center justify-center border border-gray-50"
+      style={{ backgroundColor: material.colorHex }}
     >
-      <div className="flex justify-between items-start mb-2">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
-          {metric.category}
-        </span>
-        {metric.trend !== 0 && (
-          <div className={cn(
-            "flex items-center text-xs font-bold",
-            metric.trend > 0 ? "text-green-700" : "text-red-700"
-          )}>
-            {metric.trend > 0 ? <TrendingUp size={12} className="mr-1" /> : <TrendingDown size={12} className="mr-1" />}
-            {Math.abs(metric.trend)}%
-          </div>
-        )}
-      </div>
-      
-      <h3 className="text-sm font-semibold text-gray-800 line-clamp-1">{metric.name}</h3>
-      <p className="text-[10px] text-gray-500 mb-2">{metric.productLine} • {metric.description}</p>
-      
-      <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-bold text-gray-900">
-          {typeof metric.value === 'number' ? metric.value.toLocaleString('ru-RU') : metric.value}
-        </span>
-        <span className="text-sm font-medium text-gray-500">{metric.unit}</span>
-      </div>
+      <span className="text-[10px] font-mono text-black/40 mix-blend-difference">{material.colorHex}</span>
+    </div>
+    <h4 className="font-bold text-sm mb-1">{material.name}</h4>
+    <p className="text-xs text-gray-500 leading-relaxed">{material.description}</p>
+  </motion.div>
+);
 
-      <div className="mt-2 text-[10px] text-gray-400">
-        Норма: {metric.norm}
+const FeatureSection = ({ title, icon: Icon, children }: { title: string, icon: any, children: React.ReactNode }) => (
+  <div className="mb-8">
+    <div className="flex items-center gap-2 mb-4">
+      <div className="p-2 bg-gray-100 rounded-lg">
+        <Icon size={18} className="text-gray-700" />
       </div>
+      <h3 className="font-bold text-lg">{title}</h3>
+    </div>
+    {children}
+  </div>
+);
 
-      {metric.sparkline && (
-        <div className="h-8 mt-3 -mx-1 opacity-50 group-hover:opacity-100 transition-opacity">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={metric.sparkline.map((v, i) => ({ value: v }))}>
-              <Area 
-                type="monotone" 
-                dataKey="value" 
-                stroke={isGood ? "#137333" : isBad ? "#c5221f" : "#4285f4"} 
-                fill={isGood ? "#137333" : isBad ? "#c5221f" : "#4285f4"} 
-                fillOpacity={0.1} 
-                strokeWidth={1.5}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+const LayoutDiagram = ({ variant }: { variant: DesignVariant }) => (
+  <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100 relative overflow-hidden">
+    <div className="absolute top-4 right-4 flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+      <LayoutIcon size={12} />
+      Техническая схема планировки
+    </div>
+
+    <div className="flex flex-col items-center justify-center py-10">
+      {/* 2200mm Container Representation */}
+      <div className="relative w-full max-w-md aspect-[22/15] border-2 border-dashed border-gray-300 rounded-lg flex flex-col p-4 gap-4">
+        <div className="absolute -top-6 left-0 right-0 flex justify-between text-[10px] text-gray-400 font-mono">
+          <span>0мм</span>
+          <span>Общая ширина: 2200мм</span>
+          <span>2200мм</span>
         </div>
-      )}
-    </motion.div>
-  );
-};
+
+        <div className="grid grid-cols-2 gap-4 h-1/2">
+          <div className="border-2 border-blue-200 bg-blue-50/50 rounded flex items-center justify-center flex-col gap-1 p-2">
+            <Droplets size={16} className="text-blue-400" />
+            <span className="text-[9px] font-bold text-blue-700 uppercase">Душ 1</span>
+            <span className="text-[8px] text-blue-500">1000x1000</span>
+          </div>
+          <div className="border-2 border-blue-200 bg-blue-50/50 rounded flex items-center justify-center flex-col gap-1 p-2">
+            <Droplets size={16} className="text-blue-400" />
+            <span className="text-[9px] font-bold text-blue-700 uppercase">Душ 2</span>
+            <span className="text-[8px] text-blue-500">1000x1000</span>
+          </div>
+        </div>
+
+        <div className="h-1/2 border-2 border-emerald-200 bg-emerald-50/50 rounded flex items-center justify-center flex-col gap-1 p-2">
+          <Bath size={20} className="text-emerald-400" />
+          <span className="text-[9px] font-bold text-emerald-700 uppercase">Приставная ванна</span>
+          <span className="text-[8px] text-emerald-500">1700x780</span>
+        </div>
+      </div>
+
+      <p className="mt-6 text-xs text-gray-400 text-center max-w-xs italic">
+        *Точки подключения фиксированы. Диаграмма иллюстрирует функциональное зонирование в пределах 2200 мм.
+      </p>
+    </div>
+  </div>
+);
 
 export default function App() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('Все');
-  const [selectedProductLine, setSelectedProductLine] = useState<ProductLine | 'Все'>('Все');
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
-  const [viewMode, setViewMode] = useState<'dashboard' | 'database'>('dashboard');
-
-  const categories = [
-    'Все',
-    'Продуктовые метрики',
-    'Метрики команд',
-    'Метрики надежности',
-    'Метрики ИТ общие',
-    'Метрики эффективности',
-    'Метрики для CEO',
-    'Метрики для CIO',
-    'Метрики для CTO'
-  ];
-
-  const filteredMetrics = useMemo(() => {
-    return METRICS.filter(m => {
-      const categoryMatch = selectedCategory === 'Все' || m.category === selectedCategory;
-      const lineMatch = selectedProductLine === 'Все' || m.productLine === selectedProductLine;
-      return categoryMatch && lineMatch;
-    });
-  }, [selectedCategory, selectedProductLine]);
-
-  const handleMetricClick = (metric: Metric) => {
-    setSelectedMetric(metric);
-    setIsDetailOpen(true);
-  };
+  const [activeVariantIndex, setActiveVariantIndex] = useState(0);
+  const activeVariant = VARIANTS[activeVariantIndex];
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] text-[#3c4043] font-sans">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-red-600 rounded-sm flex items-center justify-center text-white font-bold text-lg">M</div>
-            <div>
-              <h1 className="text-lg font-bold leading-none">MIEX IT</h1>
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Governance & Value</p>
-            </div>
-          </div>
-
+    <div className="min-h-screen bg-[#fcfcfc] text-[#1a1a1a] font-sans selection:bg-black selection:text-white">
+      {/* Navigation */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {/* View Toggle */}
-            <div className="flex border border-gray-200 rounded-lg overflow-hidden h-9">
-              <button 
-                onClick={() => setViewMode('dashboard')}
-                className={cn(
-                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors",
-                  viewMode === 'dashboard' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
-                )}
-              >
-                <LayoutDashboard size={14} /> Дашборд
-              </button>
-              <button 
-                onClick={() => setViewMode('database')}
-                className={cn(
-                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors",
-                  viewMode === 'database' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
-                )}
-              >
-                <Database size={14} /> База данных
-              </button>
+            <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white">
+              <Box size={22} />
             </div>
-
-            {/* Category Filter */}
-            <div className="grid grid-cols-5 gap-0.5 bg-gray-100 p-0.5 rounded-lg max-w-xl">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={cn(
-                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center",
-                    selectedCategory === cat 
-                      ? "bg-white text-gray-900 shadow-sm" 
-                      : "text-gray-400 hover:text-gray-600 hover:bg-gray-200"
-                  )}
-                >
-                  {cat}
-                </button>
-              ))}
+            <div>
+              <h1 className="text-sm font-bold uppercase tracking-widest leading-none">Проект санузла</h1>
+              <p className="text-[10px] text-gray-400 font-medium mt-1 uppercase">Дизайн-предложение v1.0</p>
             </div>
-            
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
-              <Settings size={20} />
-            </button>
           </div>
+
+          <nav className="flex bg-gray-100 p-1 rounded-xl">
+            {VARIANTS.map((v, i) => (
+              <button
+                key={v.id}
+                onClick={() => setActiveVariantIndex(i)}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200",
+                  activeVariantIndex === i
+                    ? "bg-white text-black shadow-sm"
+                    : "text-gray-400 hover:text-gray-600"
+                )}
+              >
+                {v.name}
+              </button>
+            ))}
+          </nav>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {viewMode === 'dashboard' ? (
-          <>
-            {/* Analytics Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-              <div>
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <LayoutDashboard className="text-red-600" />
-                  IT Value Terminal
-                </h2>
-                <p className="text-gray-500 text-sm mt-1">Обзор ключевых показателей эффективности ИТ-активов</p>
-              </div>
+      <main className="max-w-6xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-                  <Filter size={16} className="text-gray-400" />
-                  <select 
-                    className="text-xs font-medium focus:outline-none bg-transparent"
-                    value={selectedProductLine}
-                    onChange={(e) => setSelectedProductLine(e.target.value as ProductLine | 'Все')}
-                  >
-                    <option value="Все">Все продукты</option>
-                    {PRODUCT_LINES.map(pl => <option key={pl} value={pl}>{pl}</option>)}
-                  </select>
+          {/* Main Content */}
+          <div className="lg:col-span-8 space-y-12">
+            <motion.section
+              key={activeVariant.id + "-hero"}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-[10px] font-bold uppercase tracking-tighter text-gray-500 mb-4">
+                <Palette size={12} />
+                Выбранный стиль
+              </div>
+              <h2 className="text-5xl font-black mb-6 tracking-tight leading-none">
+                {activeVariant.name}
+              </h2>
+              <p className="text-xl text-gray-500 leading-relaxed max-w-2xl font-medium">
+                {activeVariant.concept}
+              </p>
+            </motion.section>
+
+            <FeatureSection title="Палитра материалов" icon={Layers}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {activeVariant.materials.map((m) => (
+                  <MaterialCard key={m.id} material={m} />
+                ))}
+              </div>
+            </FeatureSection>
+
+            <FeatureSection title="Освещение и атмосфера" icon={Zap}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {activeVariant.lighting.map((l, i) => (
+                  <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="text-[10px] font-bold uppercase px-2 py-1 bg-gray-50 text-gray-500 rounded">
+                        {l.type}
+                      </span>
+                      {l.colorTemp && (
+                        <span className="text-[10px] font-mono text-orange-500 bg-orange-50 px-2 py-1 rounded">
+                          {l.colorTemp}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">{l.description}</p>
+                  </div>
+                ))}
+              </div>
+            </FeatureSection>
+
+            <FeatureSection title="Сантехника и фурнитура" icon={CheckCircle2}>
+              <div className="bg-black text-white p-8 rounded-2xl flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-1">Цвет фурнитуры</h4>
+                  <p className="text-2xl font-bold">{activeVariant.fixturesFinish}</p>
+                </div>
+                <div className="w-16 h-16 rounded-full border-4 border-white/20 flex items-center justify-center">
+                  <Bath size={24} />
                 </div>
               </div>
-            </div>
+            </FeatureSection>
+          </div>
 
-            {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <AnimatePresence mode="popLayout">
-                {filteredMetrics.map((metric) => (
-                  <MetricCard 
-                    key={metric.id} 
-                    metric={metric} 
-                    onClick={() => handleMetricClick(metric)} 
-                  />
-                ))}
-              </AnimatePresence>
-            </div>
+          {/* Sidebar */}
+          <div className="lg:col-span-4 space-y-8">
+            <div className="sticky top-32 space-y-8">
+              {/* Technical Box */}
+              <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
+                <h3 className="font-bold flex items-center gap-2 mb-6">
+                  <Info size={18} className="text-blue-500" />
+                  Технические детали
+                </h3>
+                <div className="space-y-4">
+                  {activeVariant.technicalSpecs.map((spec, i) => (
+                    <div key={i} className="flex justify-between items-center py-3 border-b border-gray-50 last:border-0">
+                      <span className="text-xs text-gray-400 uppercase font-bold tracking-wider">{spec.label}</span>
+                      <span className="text-sm font-bold">{spec.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
+              {/* Layout Diagram */}
+              <LayoutDiagram variant={activeVariant} />
 
-          </>
-        ) : (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm"
-          >
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-              <div>
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <Database className="text-red-600" />
-                  Реестр метрик ИТ
-                </h2>
-                <p className="text-xs text-gray-500 mt-1">Полный перечень показателей и сырых данных для аудита</p>
+              <div className="p-8 bg-blue-600 rounded-3xl text-white">
+                <h4 className="font-bold mb-2">Заметка дизайнера</h4>
+                <p className="text-xs text-blue-100 leading-relaxed">
+                  "В пространстве 2200 мм важна визуальная непрерывность. {activeVariant.id === 'eco-minimalism'
+                    ? 'Светлые тона и безрамное стекло создают ощущение простора.'
+                    : 'Темные тона добавляют глубины, а черные профили — структурной элегантности.'}"
+                </p>
               </div>
             </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 text-[10px] uppercase tracking-wider text-gray-500 font-bold border-b border-gray-100">
-                    <th className="px-6 py-4">Линейка продуктов</th>
-                    <th className="px-6 py-4">Продукт / услуга</th>
-                    <th className="px-6 py-4">Вид</th>
-                    <th className="px-6 py-4">Тип</th>
-                    <th className="px-6 py-4">Метрика</th>
-                    <th className="px-6 py-4 text-center">Ед. изм.</th>
-                    <th className="px-6 py-4 text-right">Текущее</th>
-                    <th className="px-6 py-4 text-right">Пред.</th>
-                    <th className="px-6 py-4 text-right">Дельта (период)</th>
-                    <th className="px-6 py-4 text-right">Норматив</th>
-                    <th className="px-6 py-4 text-right">Дельта (норма)</th>
-                  </tr>
-                </thead>
-                <tbody className="text-xs divide-y divide-gray-100">
-                  {filteredMetrics.map((m) => (
-                    <tr key={m.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 font-medium">{m.productLine}</td>
-                      <td className="px-6 py-4 text-gray-500">{m.product}</td>
-                      <td className="px-6 py-4"><span className="bg-gray-100 px-2 py-0.5 rounded text-[10px]">{m.category}</span></td>
-                      <td className="px-6 py-4">
-                        <span className={cn(
-                          "px-2 py-0.5 rounded text-[10px] font-bold",
-                          m.type === 'ИТ' ? "bg-blue-50 text-blue-600" : "bg-purple-50 text-purple-600"
-                        )}>
-                          {m.type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-gray-900">{m.name}</td>
-                      <td className="px-6 py-4 text-center text-gray-400 italic">{m.unit}</td>
-                      <td className="px-6 py-4 text-right font-bold">{m.actual}</td>
-                      <td className="px-6 py-4 text-right text-gray-400">{m.previous}</td>
-                      <td className={cn(
-                        "px-6 py-4 text-right font-bold",
-                        m.variancePrev > 0 ? "text-green-600" : m.variancePrev < 0 ? "text-red-600" : "text-gray-400"
-                      )}>
-                        {m.variancePrev > 0 ? `+${m.variancePrev}%` : `${m.variancePrev}%`}
-                      </td>
-                      <td className="px-6 py-4 text-right text-gray-500 font-medium">{m.norm}</td>
-                      <td className={cn(
-                        "px-6 py-4 text-right font-bold",
-                        m.status === 'good' ? "text-green-600" : "text-red-600"
-                      )}>
-                        {m.varianceTarget > 0 ? `+${m.varianceTarget}%` : `${m.varianceTarget}%`}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </motion.div>
-        )}
+          </div>
+        </div>
       </main>
 
-      {/* Detail Overlay */}
-      <AnimatePresence>
-        {isDetailOpen && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsDetailOpen(false)}
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-            />
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              className="fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 p-8"
-            >
-              <div className="flex justify-between items-center mb-8">
-                <button 
-                  onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <ChevronDown className="rotate-90" />
-                </button>
-                <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Детальный анализ</span>
-              </div>
-
-              {selectedMetric && (
-                <div className="space-y-8">
-                  <div>
-                    <h2 className="text-3xl font-bold mb-2">{selectedMetric.name}</h2>
-                    <p className="text-gray-500">{selectedMetric.category} • {selectedMetric.roles.join(', ')}</p>
-                  </div>
-
-                  <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <div className="text-4xl font-bold mb-2">
-                      {typeof selectedMetric.value === 'number' ? selectedMetric.value.toLocaleString('ru-RU') : selectedMetric.value} 
-                      <span className="text-lg font-normal text-gray-400 ml-2">{selectedMetric.unit}</span>
-                    </div>
-                    <div className={cn(
-                      "text-sm font-bold flex items-center gap-1",
-                      selectedMetric.trend > 0 ? "text-green-600" : "text-red-600"
-                    )}>
-                      {selectedMetric.trend > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                      {Math.abs(selectedMetric.trend)}% к прошлому периоду
-                    </div>
-                  </div>
-
-                  {selectedMetric.childMetrics && selectedMetric.childMetrics.length > 0 && (
-                    <div>
-                      <h4 className="font-bold mb-4 flex items-center gap-2">
-                        <Award size={16} className="text-red-500" />
-                        Состав показателя (Декомпозиция)
-                      </h4>
-                      <div className="space-y-3">
-                        {selectedMetric.childMetrics.map((childId) => {
-                          const child = METRICS.find(m => m.id === childId);
-                          if (!child) return null;
-                          return (
-                            <div 
-                              key={childId} 
-                              onClick={() => {
-                                setSelectedMetric(child);
-                              }}
-                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer"
-                            >
-                              <div className="flex flex-col">
-                                <span className="text-xs font-bold text-gray-800">{child.name}</span>
-                                <span className="text-[10px] text-gray-400">{child.product} • {child.period}</span>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-sm font-bold text-gray-900">
-                                  {typeof child.value === 'number' ? child.value.toLocaleString('ru-RU') : child.value} 
-                                  <span className="text-[10px] font-normal text-gray-400 ml-1">{child.unit}</span>
-                                </div>
-                                <div className={cn(
-                                  "text-[10px] font-bold",
-                                  child.trend > 0 ? "text-green-600" : "text-red-600"
-                                )}>
-                                  {child.trend > 0 ? "+" : ""}{child.trend}%
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <p className="mt-4 text-[10px] text-gray-400 italic">
-                        * Данный показатель является агрегатом (суммой) указанных выше компонентов за аналогичный период.
-                      </p>
-                    </div>
-                  )}
-
-                  {!selectedMetric.childMetrics && (
-                    <div>
-                    <h4 className="font-bold mb-4">Декомпозиция по продуктам (прогноз)</h4>
-                    <div className="space-y-3">
-                      {PRODUCT_LINES.slice(0, 4).map((pl, i) => (
-                        <div key={pl} className="flex items-center gap-3">
-                          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${65 - i * 8}%` }}
-                              className="h-full bg-blue-500/80 rounded-full"
-                            />
-                          </div>
-                          <span className="text-[10px] font-medium text-gray-400 whitespace-nowrap w-24">{pl}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  )}
-
-                  <div className="pt-8 border-t border-gray-100">
-                    <h4 className="font-bold mb-2">Рекомендация ITG</h4>
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                      Текущий уровень {selectedMetric.name.toLowerCase()} находится в пределах нормы. 
-                      Рекомендуется продолжать мониторинг для выявления сезонных аномалий.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Category Indicator Footer */}
-      <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20">
-        <div className="bg-[#202124] text-white px-4 py-2 rounded-full shadow-xl flex items-center gap-2 text-xs font-medium">
-          <div className={cn(
-            "w-2 h-2 rounded-full animate-pulse",
-            selectedCategory !== 'Все' ? "bg-green-500" : "bg-yellow-500"
-          )} />
-          Категория: <span className="text-red-400 uppercase">{selectedCategory}</span>
+      {/* Footer */}
+      <footer className="border-t border-gray-100 mt-24 py-12 bg-white">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3 grayscale opacity-50">
+            <Box size={20} />
+            <span className="text-sm font-bold uppercase tracking-widest">Architectural Studio</span>
+          </div>
+          <div className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
+            2024 Bathroom Interior Design Concept
+          </div>
         </div>
       </footer>
     </div>
