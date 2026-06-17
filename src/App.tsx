@@ -37,7 +37,8 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
   const isBad = metric.status === 'bad';
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       layout="position"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -45,8 +46,10 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
       onClick={onClick}
+      aria-label={`${metric.name}: ${typeof metric.value === 'number' ? metric.value.toLocaleString('ru-RU') : metric.value} ${metric.unit}`}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
+        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200 text-left",
+        "focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none",
         isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
         isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
         !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
@@ -97,7 +100,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
           </ResponsiveContainer>
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -187,7 +190,10 @@ export default function App() {
               ))}
             </div>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
+            <button
+              aria-label="Настройки"
+              className="p-2 hover:bg-gray-100 rounded-full text-gray-500 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
+            >
               <Settings size={20} />
             </button>
           </div>
@@ -330,7 +336,8 @@ export default function App() {
               <div className="flex justify-between items-center mb-8">
                 <button 
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Закрыть детали"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
                 >
                   <ChevronDown className="rotate-90" />
                 </button>
@@ -369,12 +376,13 @@ export default function App() {
                           const child = METRICS.find(m => m.id === childId);
                           if (!child) return null;
                           return (
-                            <div 
+                            <button
                               key={childId} 
+                              type="button"
                               onClick={() => {
                                 setSelectedMetric(child);
                               }}
-                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer"
+                              className="group w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
                             >
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold text-gray-800">{child.name}</span>
@@ -392,7 +400,7 @@ export default function App() {
                                   {child.trend > 0 ? "+" : ""}{child.trend}%
                                 </div>
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
