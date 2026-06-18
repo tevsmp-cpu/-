@@ -1,0 +1,3 @@
+## 2026-06-18 - [Accessibility and Keyboard Navigation Patterns]
+**Learning:** In a dashboard where red is used for "bad" or "critical" status, avoid using red for focus indicators (e.g., `focus-visible:ring-red-500`) as it creates visual confusion. A neutral or distinct brand color like `blue-600` is safer. Interactive cards should always be semantic buttons to ensure they are discoverable by screen readers and focusable via keyboard.
+**Action:** Use `motion.button` (with `type="button"` and `text-left`) for clickable cards and ensure ARIA labels include the primary data point (name and value). Always use a contrasting color for focus rings that doesn't overlap with status-driven colors.
