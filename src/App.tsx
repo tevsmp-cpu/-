@@ -37,7 +37,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
   const isBad = metric.status === 'bad';
 
   return (
-    <motion.div
+    <motion.button
       layout="position"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -45,8 +45,10 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
       onClick={onClick}
+      type="button"
+      aria-label={`Показатель: ${metric.name}. Текущее значение: ${metric.value} ${metric.unit}`}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
+        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200 text-left w-full outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2",
         isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
         isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
         !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
@@ -97,7 +99,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
           </ResponsiveContainer>
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -187,7 +189,10 @@ export default function App() {
               ))}
             </div>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
+            <button
+              className="p-2 hover:bg-gray-100 rounded-full text-gray-500 outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+              aria-label="Настройки"
+            >
               <Settings size={20} />
             </button>
           </div>
@@ -330,7 +335,8 @@ export default function App() {
               <div className="flex justify-between items-center mb-8">
                 <button 
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                  aria-label="Закрыть"
                 >
                   <ChevronDown className="rotate-90" />
                 </button>
