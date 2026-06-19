@@ -37,7 +37,8 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
   const isBad = metric.status === 'bad';
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       layout="position"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -45,8 +46,9 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
       onClick={onClick}
+      aria-label={`Метрика: ${metric.name}, значение: ${metric.value} ${metric.unit}`}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
+        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200 text-left w-full focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none",
         isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
         isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
         !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
@@ -97,7 +99,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
           </ResponsiveContainer>
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -151,8 +153,9 @@ export default function App() {
             <div className="flex border border-gray-200 rounded-lg overflow-hidden h-9">
               <button 
                 onClick={() => setViewMode('dashboard')}
+                aria-pressed={viewMode === 'dashboard'}
                 className={cn(
-                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none z-10",
                   viewMode === 'dashboard' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
@@ -160,8 +163,9 @@ export default function App() {
               </button>
               <button 
                 onClick={() => setViewMode('database')}
+                aria-pressed={viewMode === 'database'}
                 className={cn(
-                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none z-10",
                   viewMode === 'database' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
@@ -175,8 +179,9 @@ export default function App() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
+                  aria-pressed={selectedCategory === cat}
                   className={cn(
-                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center",
+                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none",
                     selectedCategory === cat 
                       ? "bg-white text-gray-900 shadow-sm" 
                       : "text-gray-400 hover:text-gray-600 hover:bg-gray-200"
@@ -187,7 +192,10 @@ export default function App() {
               ))}
             </div>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
+            <button
+              className="p-2 hover:bg-gray-100 rounded-full text-gray-500 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
+              aria-label="Настройки"
+            >
               <Settings size={20} />
             </button>
           </div>
@@ -211,9 +219,10 @@ export default function App() {
                 <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
                   <Filter size={16} className="text-gray-400" />
                   <select 
-                    className="text-xs font-medium focus:outline-none bg-transparent"
+                    className="text-xs font-medium focus:outline-none bg-transparent focus-visible:ring-2 focus-visible:ring-blue-600 rounded"
                     value={selectedProductLine}
                     onChange={(e) => setSelectedProductLine(e.target.value as ProductLine | 'Все')}
+                    aria-label="Фильтр по линейке продуктов"
                   >
                     <option value="Все">Все продукты</option>
                     {PRODUCT_LINES.map(pl => <option key={pl} value={pl}>{pl}</option>)}
@@ -330,7 +339,8 @@ export default function App() {
               <div className="flex justify-between items-center mb-8">
                 <button 
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
+                  aria-label="Закрыть детали"
                 >
                   <ChevronDown className="rotate-90" />
                 </button>
@@ -369,12 +379,14 @@ export default function App() {
                           const child = METRICS.find(m => m.id === childId);
                           if (!child) return null;
                           return (
-                            <div 
+                            <button
+                              type="button"
                               key={childId} 
                               onClick={() => {
                                 setSelectedMetric(child);
                               }}
-                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer"
+                              aria-label={`Дочерняя метрика: ${child.name}, значение: ${child.value} ${child.unit}`}
+                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer text-left w-full focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
                             >
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold text-gray-800">{child.name}</span>
@@ -392,7 +404,7 @@ export default function App() {
                                   {child.trend > 0 ? "+" : ""}{child.trend}%
                                 </div>
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
