@@ -35,18 +35,23 @@ const COLORS = {
 const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; key?: string }) => {
   const isGood = metric.status === 'good';
   const isBad = metric.status === 'bad';
+  const formattedValue = typeof metric.value === 'number' ? metric.value.toLocaleString('ru-RU') : metric.value;
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       layout="position"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      aria-label={`Метрика: ${metric.name}, значение: ${formattedValue} ${metric.unit}`}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
+        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200 text-left w-full",
+        "focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none",
         isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
         isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
         !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
@@ -72,7 +77,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
       
       <div className="flex items-baseline gap-1">
         <span className="text-2xl font-bold text-gray-900">
-          {typeof metric.value === 'number' ? metric.value.toLocaleString('ru-RU') : metric.value}
+          {formattedValue}
         </span>
         <span className="text-sm font-medium text-gray-500">{metric.unit}</span>
       </div>
@@ -97,7 +102,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
           </ResponsiveContainer>
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -187,7 +192,10 @@ export default function App() {
               ))}
             </div>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
+            <button
+              className="p-2 hover:bg-gray-100 rounded-full text-gray-500 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
+              aria-label="Настройки"
+            >
               <Settings size={20} />
             </button>
           </div>
@@ -330,7 +338,8 @@ export default function App() {
               <div className="flex justify-between items-center mb-8">
                 <button 
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
+                  aria-label="Закрыть детали"
                 >
                   <ChevronDown className="rotate-90" />
                 </button>
@@ -368,13 +377,17 @@ export default function App() {
                         {selectedMetric.childMetrics.map((childId) => {
                           const child = METRICS.find(m => m.id === childId);
                           if (!child) return null;
+                          const childFormattedValue = typeof child.value === 'number' ? child.value.toLocaleString('ru-RU') : child.value;
                           return (
-                            <div 
+                            <motion.button
                               key={childId} 
+                              type="button"
+                              whileTap={{ scale: 0.98 }}
                               onClick={() => {
                                 setSelectedMetric(child);
                               }}
-                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer"
+                              aria-label={`Метрика: ${child.name}, значение: ${childFormattedValue} ${child.unit}`}
+                              className="group flex w-full items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
                             >
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold text-gray-800">{child.name}</span>
@@ -382,7 +395,7 @@ export default function App() {
                               </div>
                               <div className="text-right">
                                 <div className="text-sm font-bold text-gray-900">
-                                  {typeof child.value === 'number' ? child.value.toLocaleString('ru-RU') : child.value} 
+                                  {childFormattedValue}
                                   <span className="text-[10px] font-normal text-gray-400 ml-1">{child.unit}</span>
                                 </div>
                                 <div className={cn(
@@ -392,7 +405,7 @@ export default function App() {
                                   {child.trend > 0 ? "+" : ""}{child.trend}%
                                 </div>
                               </div>
-                            </div>
+                            </motion.button>
                           );
                         })}
                       </div>
