@@ -37,16 +37,19 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
   const isBad = metric.status === 'bad';
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       layout="position"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      aria-label={`${metric.name}: ${typeof metric.value === 'number' ? metric.value.toLocaleString('ru-RU') : metric.value} ${metric.unit}. Состояние: ${isGood ? 'в норме' : isBad ? 'требует внимания' : 'нейтрально'}.`}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
+        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200 text-left w-full outline-none focus-visible:ring-2 focus-visible:ring-red-500",
         isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
         isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
         !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
@@ -61,7 +64,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
             "flex items-center text-xs font-bold",
             metric.trend > 0 ? "text-green-700" : "text-red-700"
           )}>
-            {metric.trend > 0 ? <TrendingUp size={12} className="mr-1" /> : <TrendingDown size={12} className="mr-1" />}
+            {metric.trend > 0 ? <TrendingUp size={12} className="mr-1" aria-hidden="true" /> : <TrendingDown size={12} className="mr-1" aria-hidden="true" />}
             {Math.abs(metric.trend)}%
           </div>
         )}
@@ -97,7 +100,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
           </ResponsiveContainer>
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -151,32 +154,35 @@ export default function App() {
             <div className="flex border border-gray-200 rounded-lg overflow-hidden h-9">
               <button 
                 onClick={() => setViewMode('dashboard')}
+                aria-pressed={viewMode === 'dashboard'}
                 className={cn(
-                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500 focus-visible:z-10",
                   viewMode === 'dashboard' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
-                <LayoutDashboard size={14} /> Дашборд
+                <LayoutDashboard size={14} aria-hidden="true" /> Дашборд
               </button>
               <button 
                 onClick={() => setViewMode('database')}
+                aria-pressed={viewMode === 'database'}
                 className={cn(
-                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500 focus-visible:z-10",
                   viewMode === 'database' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
-                <Database size={14} /> База данных
+                <Database size={14} aria-hidden="true" /> База данных
               </button>
             </div>
 
             {/* Category Filter */}
-            <div className="grid grid-cols-5 gap-0.5 bg-gray-100 p-0.5 rounded-lg max-w-xl">
+            <div className="grid grid-cols-5 gap-0.5 bg-gray-100 p-0.5 rounded-lg max-w-xl" role="group" aria-label="Категории метрик">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
+                  aria-pressed={selectedCategory === cat}
                   className={cn(
-                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center",
+                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500 focus-visible:z-10",
                     selectedCategory === cat 
                       ? "bg-white text-gray-900 shadow-sm" 
                       : "text-gray-400 hover:text-gray-600 hover:bg-gray-200"
@@ -187,8 +193,11 @@ export default function App() {
               ))}
             </div>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
-              <Settings size={20} />
+            <button
+              className="p-2 hover:bg-gray-100 rounded-full text-gray-500 outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              aria-label="Настройки"
+            >
+              <Settings size={20} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -208,12 +217,13 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-                  <Filter size={16} className="text-gray-400" />
+                <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm focus-within:ring-2 focus-within:ring-red-500">
+                  <Filter size={16} className="text-gray-400" aria-hidden="true" />
                   <select 
-                    className="text-xs font-medium focus:outline-none bg-transparent"
+                    className="text-xs font-medium focus:outline-none bg-transparent cursor-pointer"
                     value={selectedProductLine}
                     onChange={(e) => setSelectedProductLine(e.target.value as ProductLine | 'Все')}
+                    aria-label="Фильтр по линейке продуктов"
                   >
                     <option value="Все">Все продукты</option>
                     {PRODUCT_LINES.map(pl => <option key={pl} value={pl}>{pl}</option>)}
@@ -325,14 +335,18 @@ export default function App() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              className="fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 p-8"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Детализация: ${selectedMetric?.name}`}
+              className="fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 p-8 overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-8">
                 <button 
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Закрыть"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                 >
-                  <ChevronDown className="rotate-90" />
+                  <ChevronDown className="rotate-90" aria-hidden="true" />
                 </button>
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Детальный анализ</span>
               </div>
@@ -368,13 +382,17 @@ export default function App() {
                         {selectedMetric.childMetrics.map((childId) => {
                           const child = METRICS.find(m => m.id === childId);
                           if (!child) return null;
+                          const isChildGood = child.status === 'good';
+                          const isChildBad = child.status === 'bad';
                           return (
-                            <div 
+                            <button
                               key={childId} 
+                              type="button"
                               onClick={() => {
                                 setSelectedMetric(child);
                               }}
-                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer"
+                              aria-label={`${child.name}: ${typeof child.value === 'number' ? child.value.toLocaleString('ru-RU') : child.value} ${child.unit}.`}
+                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer w-full text-left outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                             >
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold text-gray-800">{child.name}</span>
@@ -392,7 +410,7 @@ export default function App() {
                                   {child.trend > 0 ? "+" : ""}{child.trend}%
                                 </div>
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
