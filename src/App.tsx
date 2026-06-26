@@ -37,16 +37,20 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
   const isBad = metric.status === 'bad';
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       layout="position"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      aria-label={`Метрика: ${metric.name}, значение: ${metric.value} ${metric.unit}`}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
+        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200 text-left w-full",
+        "focus-visible:ring-2 focus-visible:ring-red-500 outline-none",
         isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
         isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
         !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
@@ -61,7 +65,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
             "flex items-center text-xs font-bold",
             metric.trend > 0 ? "text-green-700" : "text-red-700"
           )}>
-            {metric.trend > 0 ? <TrendingUp size={12} className="mr-1" /> : <TrendingDown size={12} className="mr-1" />}
+            {metric.trend > 0 ? <TrendingUp size={12} className="mr-1" aria-hidden="true" /> : <TrendingDown size={12} className="mr-1" aria-hidden="true" />}
             {Math.abs(metric.trend)}%
           </div>
         )}
@@ -97,7 +101,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
           </ResponsiveContainer>
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -150,22 +154,26 @@ export default function App() {
             {/* View Toggle */}
             <div className="flex border border-gray-200 rounded-lg overflow-hidden h-9">
               <button 
+                type="button"
                 onClick={() => setViewMode('dashboard')}
+                aria-pressed={viewMode === 'dashboard'}
                 className={cn(
-                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500 focus-visible:z-10 outline-none",
                   viewMode === 'dashboard' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
-                <LayoutDashboard size={14} /> Дашборд
+                <LayoutDashboard size={14} aria-hidden="true" /> Дашборд
               </button>
               <button 
+                type="button"
                 onClick={() => setViewMode('database')}
+                aria-pressed={viewMode === 'database'}
                 className={cn(
-                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500 focus-visible:z-10 outline-none",
                   viewMode === 'database' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
-                <Database size={14} /> База данных
+                <Database size={14} aria-hidden="true" /> База данных
               </button>
             </div>
 
@@ -174,9 +182,11 @@ export default function App() {
               {categories.map((cat) => (
                 <button
                   key={cat}
+                  type="button"
                   onClick={() => setSelectedCategory(cat)}
+                  aria-pressed={selectedCategory === cat}
                   className={cn(
-                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center",
+                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center focus-visible:ring-2 focus-visible:ring-red-500 outline-none",
                     selectedCategory === cat 
                       ? "bg-white text-gray-900 shadow-sm" 
                       : "text-gray-400 hover:text-gray-600 hover:bg-gray-200"
@@ -187,8 +197,12 @@ export default function App() {
               ))}
             </div>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
-              <Settings size={20} />
+            <button
+              type="button"
+              aria-label="Настройки"
+              className="p-2 hover:bg-gray-100 rounded-full text-gray-500 focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
+            >
+              <Settings size={20} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -201,15 +215,15 @@ export default function App() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
               <div>
                 <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <LayoutDashboard className="text-red-600" />
+                  <LayoutDashboard className="text-red-600" aria-hidden="true" />
                   IT Value Terminal
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">Обзор ключевых показателей эффективности ИТ-активов</p>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-                  <Filter size={16} className="text-gray-400" />
+                <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm focus-within:ring-2 focus-within:ring-red-500">
+                  <Filter size={16} className="text-gray-400" aria-hidden="true" />
                   <select 
                     className="text-xs font-medium focus:outline-none bg-transparent"
                     value={selectedProductLine}
@@ -246,7 +260,7 @@ export default function App() {
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
-                  <Database className="text-red-600" />
+                  <Database className="text-red-600" aria-hidden="true" />
                   Реестр метрик ИТ
                 </h2>
                 <p className="text-xs text-gray-500 mt-1">Полный перечень показателей и сырых данных для аудита</p>
@@ -320,6 +334,7 @@ export default function App() {
               exit={{ opacity: 0 }}
               onClick={() => setIsDetailOpen(false)}
               className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+              role="presentation"
             />
             <motion.div 
               initial={{ x: '100%' }}
@@ -329,10 +344,12 @@ export default function App() {
             >
               <div className="flex justify-between items-center mb-8">
                 <button 
+                  type="button"
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Закрыть"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
                 >
-                  <ChevronDown className="rotate-90" />
+                  <ChevronDown className="rotate-90" aria-hidden="true" />
                 </button>
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Детальный анализ</span>
               </div>
@@ -353,7 +370,7 @@ export default function App() {
                       "text-sm font-bold flex items-center gap-1",
                       selectedMetric.trend > 0 ? "text-green-600" : "text-red-600"
                     )}>
-                      {selectedMetric.trend > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                      {selectedMetric.trend > 0 ? <TrendingUp size={14} aria-hidden="true" /> : <TrendingDown size={14} aria-hidden="true" />}
                       {Math.abs(selectedMetric.trend)}% к прошлому периоду
                     </div>
                   </div>
@@ -361,7 +378,7 @@ export default function App() {
                   {selectedMetric.childMetrics && selectedMetric.childMetrics.length > 0 && (
                     <div>
                       <h4 className="font-bold mb-4 flex items-center gap-2">
-                        <Award size={16} className="text-red-500" />
+                        <Award size={16} className="text-red-500" aria-hidden="true" />
                         Состав показателя (Декомпозиция)
                       </h4>
                       <div className="space-y-3">
@@ -369,12 +386,14 @@ export default function App() {
                           const child = METRICS.find(m => m.id === childId);
                           if (!child) return null;
                           return (
-                            <div 
+                            <button
+                              type="button"
                               key={childId} 
                               onClick={() => {
                                 setSelectedMetric(child);
                               }}
-                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer"
+                              aria-label={`Метрика: ${child.name}, значение: ${child.value} ${child.unit}`}
+                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer text-left w-full focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
                             >
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold text-gray-800">{child.name}</span>
@@ -392,7 +411,7 @@ export default function App() {
                                   {child.trend > 0 ? "+" : ""}{child.trend}%
                                 </div>
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
