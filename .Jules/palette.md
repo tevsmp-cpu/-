@@ -1,0 +1,3 @@
+## 2026-06-29 - [Semantic Buttons for Interactive Cards]
+**Learning:** In a dashboard with interactive cards, using `motion.div` with an `onClick` handler prevents keyboard users from navigating and interacting with the data. Refactoring these to `motion.button` (with `text-left` and `outline-none`) instantly enables tab-navigation and 'Enter/Space' activation while maintaining the intended layout.
+**Action:** Always prefer semantic `<button>` or `motion.button` for any interactive item that isn't a simple link, and ensure `aria-label` provides a meaningful summary of the content for screen readers.
