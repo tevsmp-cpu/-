@@ -37,16 +37,19 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
   const isBad = metric.status === 'bad';
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       layout="position"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      aria-label={`${metric.name}: ${typeof metric.value === 'number' ? metric.value.toLocaleString('ru-RU') : metric.value} ${metric.unit}`}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
+        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200 text-left w-full outline-none focus-visible:ring-2 focus-visible:ring-red-500",
         isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
         isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
         !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
@@ -61,7 +64,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
             "flex items-center text-xs font-bold",
             metric.trend > 0 ? "text-green-700" : "text-red-700"
           )}>
-            {metric.trend > 0 ? <TrendingUp size={12} className="mr-1" /> : <TrendingDown size={12} className="mr-1" />}
+            {metric.trend > 0 ? <TrendingUp size={12} className="mr-1" aria-hidden="true" /> : <TrendingDown size={12} className="mr-1" aria-hidden="true" />}
             {Math.abs(metric.trend)}%
           </div>
         )}
@@ -82,7 +85,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
       </div>
 
       {metric.sparkline && (
-        <div className="h-8 mt-3 -mx-1 opacity-50 group-hover:opacity-100 transition-opacity">
+        <div className="h-8 mt-3 -mx-1 opacity-50 group-hover:opacity-100 transition-opacity" aria-hidden="true">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={metric.sparkline.map((v, i) => ({ value: v }))}>
               <Area 
@@ -97,7 +100,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
           </ResponsiveContainer>
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -149,47 +152,61 @@ export default function App() {
           <div className="flex items-center gap-4">
             {/* View Toggle */}
             <div className="flex border border-gray-200 rounded-lg overflow-hidden h-9">
-              <button 
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setViewMode('dashboard')}
+                aria-pressed={viewMode === 'dashboard'}
                 className={cn(
-                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500 focus-visible:z-10",
                   viewMode === 'dashboard' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
-                <LayoutDashboard size={14} /> Дашборд
-              </button>
-              <button 
+                <LayoutDashboard size={14} aria-hidden="true" /> Дашборд
+              </motion.button>
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setViewMode('database')}
+                aria-pressed={viewMode === 'database'}
                 className={cn(
-                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-500 focus-visible:z-10",
                   viewMode === 'database' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
-                <Database size={14} /> База данных
-              </button>
+                <Database size={14} aria-hidden="true" /> База данных
+              </motion.button>
             </div>
 
             {/* Category Filter */}
             <div className="grid grid-cols-5 gap-0.5 bg-gray-100 p-0.5 rounded-lg max-w-xl">
               {categories.map((cat) => (
-                <button
+                <motion.button
                   key={cat}
+                  type="button"
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedCategory(cat)}
+                  aria-pressed={selectedCategory === cat}
                   className={cn(
-                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center",
+                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:z-10",
                     selectedCategory === cat 
                       ? "bg-white text-gray-900 shadow-sm" 
                       : "text-gray-400 hover:text-gray-600 hover:bg-gray-200"
                   )}
                 >
                   {cat}
-                </button>
+                </motion.button>
               ))}
             </div>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
-              <Settings size={20} />
-            </button>
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.9 }}
+              aria-label="Настройки"
+              className="p-2 hover:bg-gray-100 rounded-full text-gray-500 outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            >
+              <Settings size={20} aria-hidden="true" />
+            </motion.button>
           </div>
         </div>
       </header>
@@ -319,6 +336,7 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsDetailOpen(false)}
+              role="presentation"
               className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
             />
             <motion.div 
@@ -328,12 +346,15 @@ export default function App() {
               className="fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 p-8"
             >
               <div className="flex justify-between items-center mb-8">
-                <button 
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Закрыть панель"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                 >
-                  <ChevronDown className="rotate-90" />
-                </button>
+                  <ChevronDown className="rotate-90" aria-hidden="true" />
+                </motion.button>
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Детальный анализ</span>
               </div>
 
