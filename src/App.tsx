@@ -37,16 +37,19 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
   const isBad = metric.status === 'bad';
 
   return (
-    <motion.div
+    <motion.button
       layout="position"
+      type="button"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      aria-label={`Просмотреть детали метрики: ${metric.name}`}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
+        "group relative p-4 rounded-xl text-left border transition-all duration-200 focus-visible:ring-2 focus-visible:ring-red-500 outline-none",
         isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
         isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
         !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
@@ -97,7 +100,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
           </ResponsiveContainer>
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -149,24 +152,30 @@ export default function App() {
           <div className="flex items-center gap-4">
             {/* View Toggle */}
             <div className="flex border border-gray-200 rounded-lg overflow-hidden h-9">
-              <button 
+              <motion.button
+                type="button"
                 onClick={() => setViewMode('dashboard')}
+                whileTap={{ scale: 0.95 }}
+                aria-pressed={viewMode === 'dashboard'}
                 className={cn(
-                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 flex items-center gap-2 text-xs font-semibold transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-red-500 outline-none",
                   viewMode === 'dashboard' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
-                <LayoutDashboard size={14} /> Дашборд
-              </button>
-              <button 
+                <LayoutDashboard size={14} aria-hidden="true" /> Дашборд
+              </motion.button>
+              <motion.button
+                type="button"
                 onClick={() => setViewMode('database')}
+                whileTap={{ scale: 0.95 }}
+                aria-pressed={viewMode === 'database'}
                 className={cn(
-                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors",
+                  "px-3 border-l border-gray-200 flex items-center gap-2 text-xs font-semibold transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-red-500 outline-none",
                   viewMode === 'database' ? "bg-red-50 text-red-600" : "bg-white text-gray-500 hover:bg-gray-50"
                 )}
               >
-                <Database size={14} /> База данных
-              </button>
+                <Database size={14} aria-hidden="true" /> База данных
+              </motion.button>
             </div>
 
             {/* Category Filter */}
@@ -187,9 +196,14 @@ export default function App() {
               ))}
             </div>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
-              <Settings size={20} />
-            </button>
+            <motion.button
+              type="button"
+              aria-label="Настройки"
+              whileTap={{ scale: 0.9 }}
+              className="p-2 hover:bg-gray-100 rounded-full text-gray-500 focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
+            >
+              <Settings size={20} aria-hidden="true" />
+            </motion.button>
           </div>
         </div>
       </header>
@@ -328,12 +342,15 @@ export default function App() {
               className="fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 p-8"
             >
               <div className="flex justify-between items-center mb-8">
-                <button 
+                <motion.button
+                  type="button"
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  whileTap={{ scale: 0.9 }}
+                  aria-label="Закрыть панель"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
                 >
-                  <ChevronDown className="rotate-90" />
-                </button>
+                  <ChevronDown className="rotate-90" aria-hidden="true" />
+                </motion.button>
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Детальный анализ</span>
               </div>
 
@@ -369,12 +386,13 @@ export default function App() {
                           const child = METRICS.find(m => m.id === childId);
                           if (!child) return null;
                           return (
-                            <div 
+                            <motion.button
                               key={childId} 
-                              onClick={() => {
-                                setSelectedMetric(child);
-                              }}
-                              className="group flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer"
+                              type="button"
+                              onClick={() => setSelectedMetric(child)}
+                              whileTap={{ scale: 0.98 }}
+                              aria-label={`Перейти к метрике: ${child.name}`}
+                              className="group w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all text-left focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
                             >
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold text-gray-800">{child.name}</span>
@@ -392,7 +410,7 @@ export default function App() {
                                   {child.trend > 0 ? "+" : ""}{child.trend}%
                                 </div>
                               </div>
-                            </div>
+                            </motion.button>
                           );
                         })}
                       </div>
