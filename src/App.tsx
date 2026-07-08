@@ -37,16 +37,19 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
   const isBad = metric.status === 'bad';
 
   return (
-    <motion.div
+    <motion.button
       layout="position"
+      type="button"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      aria-label={`${metric.name}: ${typeof metric.value === 'number' ? metric.value.toLocaleString('ru-RU') : metric.value} ${metric.unit}. Статус: ${isGood ? 'В норме' : isBad ? 'Требует внимания' : 'Нейтрально'}`}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer border transition-all duration-200",
+        "group relative p-4 rounded-xl text-left w-full border transition-all duration-200",
         isGood && "bg-[#e6f4ea] border-[#ceead6] hover:shadow-lg hover:shadow-green-100",
         isBad && "bg-[#fce8e6] border-[#fad2cf] hover:shadow-lg hover:shadow-red-100",
         !isGood && !isBad && "bg-white border-[#dadce0] hover:shadow-md shadow-sm"
@@ -97,7 +100,7 @@ const MetricCard = ({ metric, onClick }: { metric: Metric; onClick: () => void; 
           </ResponsiveContainer>
         </div>
       )}
-    </motion.div>
+    </motion.button>
   );
 };
 
@@ -170,20 +173,22 @@ export default function App() {
             </div>
 
             {/* Category Filter */}
-            <div className="grid grid-cols-5 gap-0.5 bg-gray-100 p-0.5 rounded-lg max-w-xl">
+            <div className="flex flex-wrap gap-1 bg-gray-100 p-1 rounded-lg max-w-2xl justify-center">
               {categories.map((cat) => (
-                <button
+                <motion.button
                   key={cat}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedCategory(cat)}
+                  aria-pressed={selectedCategory === cat}
                   className={cn(
-                    "px-2 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center",
+                    "px-3 py-1.5 text-[9px] font-bold rounded-md transition-all whitespace-nowrap text-center focus-visible:ring-2 focus-visible:ring-red-500 outline-none",
                     selectedCategory === cat 
                       ? "bg-white text-gray-900 shadow-sm" 
                       : "text-gray-400 hover:text-gray-600 hover:bg-gray-200"
                   )}
                 >
                   {cat}
-                </button>
+                </motion.button>
               ))}
             </div>
             
@@ -319,6 +324,7 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsDetailOpen(false)}
+              role="presentation"
               className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
             />
             <motion.div 
@@ -330,9 +336,10 @@ export default function App() {
               <div className="flex justify-between items-center mb-8">
                 <button 
                   onClick={() => setIsDetailOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Закрыть панель"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
                 >
-                  <ChevronDown className="rotate-90" />
+                  <ChevronDown className="rotate-90" aria-hidden="true" />
                 </button>
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Детальный анализ</span>
               </div>
